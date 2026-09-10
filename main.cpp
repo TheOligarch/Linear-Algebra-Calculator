@@ -266,18 +266,34 @@ std::vector<std::vector<T>> gaussJordan(std::vector<std::vector<T>>& matrix) {
     return matrix;
 }
 
+//Finds the rank of a matrix and returns it
+template <typename T>
+int rank(std::vector<std::vector<T>>& matrix) {
+    matrix = gaussJordan(matrix);
+    int counter = 0; //Adds 1 every time there is a nonzero row
+    for (const auto& row : matrix) {
+        for(const auto& element : row) {
+            if (element != 0) {
+                counter++;
+                break;
+            }
+        }
+    }
+    return counter;
+}
+
 
 
 
 int main(){
 
-    
     std::string userInput;
     std::cout << "Type in the calculation you want to make: \n"<< 
     "[addMatrices]\n" << 
     "[multiplyMatrices]\n" <<
     "[RREF]\n" <<
-    "[gaussJordan]\n";
+    "[gaussJordan]\n" <<
+    "[rank]\n";
     std::cin >> userInput;
 
 
@@ -313,6 +329,10 @@ int main(){
     } else if (userInput == "gaussJordan") {
         auto matrix1 = getMatrix<double>();
         printMatrix(gaussJordan(matrix1));
+    } else if (userInput == "rank") {
+        auto matrix1 = getMatrix<double>();
+        int rankOfMatrix = rank(matrix1);
+        std::cout<<"Rank(A) = " << rankOfMatrix << std::endl;
     }
     return 0;
 }
