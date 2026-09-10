@@ -20,8 +20,11 @@ Current Features:
 
 
 
+
 Planned Features:
+
 -determinant of a matrix 
+
 -Inverse of a matrix
 
 
