@@ -12,6 +12,7 @@ Current Features:
 -RREF algorithm 
 
 
+
 Planned Features;
 
 -Augmented matrix RREF
@@ -24,5 +25,7 @@ Planned Features;
 
 -Inverse of a matrix
 
+
 AI/Research policy:
+
 -For this project, all main features aka calculations (math, algorithms, etc.) are brainstormed, coded, and debugged completely by myself without any assistance. I'm allowing myself to look up or use AI for general documentation/syntax/libraries but all actual features and critical thinking are done by myself in order to improve my skills and have an actual challenge.
