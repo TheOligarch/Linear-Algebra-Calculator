@@ -12,18 +12,16 @@ Current Features:
 
 -RREF algorithm 
 
-
-
-Planned Features;
-
 -Augmented matrix RREF
 
 -rank of a matrix
 
--determinant of a matrix 
-
 -if a matrix is invertable or not
 
+
+
+Planned Features:
+-determinant of a matrix 
 -Inverse of a matrix
 
 
