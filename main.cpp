@@ -14,15 +14,18 @@ void printMatrix(const std::vector<std::vector<T>>& matrix) {
         }
         std::cout << "]\n"; //New line at the end of each row
     }
+    std::cout<<std::endl;
 
 }
 
 //Adds two matrices together and returns the resulting matrix; assumes the matrices are the same size
 template <typename T>
 std::vector<std::vector<T>> addMatrices(std::vector<std::vector<T>>& matrix1, std::vector<std::vector<T>>& matrix2) {
+    //Getting bounds and initilizing new empty matrix to store values to
     size_t rows = matrix1.size();
     size_t cols = matrix1[0].size();
     std::vector<std::vector<T>> matrix(rows, std::vector<T>(cols, 0));
+    //Iterate through each element within a row, each row within the matrix; adding corresponding elements together
     for (size_t i = 0; i < rows; i++) {
         for (size_t j = 0; j < cols; j++) {
             matrix.at(i).at(j) = (matrix1.at(i).at(j) + matrix2.at(i).at(j));
@@ -66,7 +69,7 @@ void multiplyRow(std::vector<std::vector<T>>& matrix, size_t row, T scalar) {
 //Add a multiple of one row to another
 template <typename T>
 void addRows(std::vector<std::vector<T>>& matrix, size_t changedRow, size_t unchangedRow, T scalar) {
-    for (size_t i = 0; i < matrix.size(); i++) {
+    for (size_t i = 0; i < matrix[0].size(); i++) {
         matrix[changedRow][i] += (matrix[unchangedRow][i] * scalar);
     }
 }
@@ -93,9 +96,91 @@ std::vector<std::vector<T>> getMatrix() {
     return matrix;
 }
 
+//Turns a matrix into its Reduced Row-Echelon form and returns that matrix
+template <typename T>
+std::vector<std::vector<T>> RREF(std::vector<std::vector<T>>& matrix) {
+    //Initialize bounds
+    size_t rows = matrix.size();
+    size_t cols = matrix[0].size();
+
+    //Find first non-zero column, working from last column to first column
+    int colTracker = cols;
+    for(int i = cols-1; i > -1; i--) {
+        for (int j = rows-1; j > -1; j--) {
+            if (matrix.at(j).at(i) != 0) {
+                colTracker = i;
+            }
+        }
+    }
+
+    int leadingOne = 0; //Tracks position of the leading 1
+    //First, row echelon reduce
+    //Iterates through each column
+    while (colTracker < cols) {
+        //Working only within columns right now
+        //Get the first non-zero number in that column into the top row or the toppest row below a leading 1 row, and then makes that number 1
+        for(int i = leadingOne; i < rows; i++) {
+            if (matrix.at(i).at(colTracker) != 0 ) {
+                if (i == leadingOne) {
+                    std::cout<< "No rowswapping necessary" << i << colTracker << std::endl;
+                    printMatrix(matrix);
+                    multiplyRow(matrix,0,1.0);
+                    printMatrix(matrix);
+                    std::cout<<"turn to 1 by multiplying by " << (1.0/(matrix.at(leadingOne).at(colTracker)));
+                    printMatrix(matrix);
+                    multiplyRow(matrix,i,(1.0/(matrix.at(leadingOne).at(colTracker))));
+                    printMatrix(matrix);
+                    break;
+                } else {
+                    std::cout<<"Rowswap " << i<< " "<< (leadingOne) << std::endl;
+                    printMatrix(matrix);
+                    swapRows(matrix,(leadingOne),i);
+                    printMatrix(matrix);
+                    std::cout<<"turn to 1 by multiplying by " << (1.0/(matrix.at(leadingOne).at(colTracker)));
+                    printMatrix(matrix);
+                    multiplyRow(matrix,(leadingOne),(1.0/(matrix.at(leadingOne).at(colTracker))));
+                    printMatrix(matrix);
+                    break;
+                }
+            }
+        }
+
+        //Zero out that column under the leading 1
+        for(size_t i = leadingOne+1; i < rows; i++) {
+            if (matrix.at(i).at(colTracker) != 0) {
+                std::cout<<"zeroing out a row. LeadingOne: " << leadingOne << "changing row" << i << " scalar is " << ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker))) ;
+                printMatrix(matrix);
+                addRows(matrix, i, leadingOne, (-1.0 * ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker))) ));
+                printMatrix(matrix);
+            }
+        }
+        //increase colTracker by 1
+        colTracker++;
+        leadingOne++;
+    }
+    colTracker--;
+    leadingOne--;
+    //Now that we have it in REF form, we work backwards and convert to RREF
+    while (colTracker > 0) {
+            for (int i = leadingOne-1; i > -1; i--) {
+                std::cout<<"zeroing out a row. LeadingOne: " << leadingOne << "changing row" << i << " scalar is " << ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker))) ;
+                printMatrix(matrix);
+                addRows(matrix, i, leadingOne, (-1.0 * ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker))) ));
+                printMatrix(matrix);
+            }
+        colTracker--;
+        leadingOne--;
+    }
+    return matrix;
+}
+
 
 
 int main(){
+    std::vector<std::vector<double>> testMatrix = {{0,0,3},{5,0,0},{0,8,2}, {1,2,3},  {0,0,0}};
+    std::vector<std::vector<double>> testMatrix1 = RREF(testMatrix);
+    printMatrix(testMatrix1);
+    /*
     std::string userInput;
     std::cout << "Type in the calculation you want to make: \n"<< "[addMatrices]\n" << "[multiplyMatrices]\n";
     std::cin >> userInput;
@@ -127,7 +212,7 @@ int main(){
         } else {
             std::cout << "Dimensions do not match";
         }
-    }
+    } */
 
     return 0;
 }
