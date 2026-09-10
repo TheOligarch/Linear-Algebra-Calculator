@@ -282,6 +282,17 @@ int rank(std::vector<std::vector<T>>& matrix) {
     return counter;
 }
 
+//Checks the invertability of a matrix using the rank
+template <typename T>
+bool invertability(std::vector<std::vector<T>>& matrix) {
+    //Checks if rank(A) = n and if the matrix is square
+    if (rank(matrix) == matrix.size() && matrix.size() == matrix[0].size()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 
 
 
@@ -293,7 +304,8 @@ int main(){
     "[multiplyMatrices]\n" <<
     "[RREF]\n" <<
     "[gaussJordan]\n" <<
-    "[rank]\n";
+    "[rank]\n" <<
+    "[invertability]\n";
     std::cin >> userInput;
 
 
@@ -333,6 +345,13 @@ int main(){
         auto matrix1 = getMatrix<double>();
         int rankOfMatrix = rank(matrix1);
         std::cout<<"Rank(A) = " << rankOfMatrix << std::endl;
+    } else if (userInput == "invertability") {
+        auto matrix1 = getMatrix<double>();
+        if (invertability(matrix1)) {
+            std::cout <<"This matrix is invertable";
+        } else {
+            std::cout << "This matrix is not invertable";
+        }
     }
     return 0;
 }
