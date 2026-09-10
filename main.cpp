@@ -114,6 +114,7 @@ std::vector<std::vector<T>> RREF(std::vector<std::vector<T>>& matrix) {
     }
 
     int leadingOne = 0; //Tracks position of the leading 1
+    std::vector<int> pivotTracker; //Contains the index of all columns that are pivot columns
     //First, row echelon reduce
     //Iterates through each column
     while (colTracker < cols) {
@@ -124,12 +125,13 @@ std::vector<std::vector<T>> RREF(std::vector<std::vector<T>>& matrix) {
                 if (i == leadingOne) {
                     std::cout<< "No rowswapping necessary" << i << colTracker << std::endl;
                     printMatrix(matrix);
-                    multiplyRow(matrix,0,1.0);
+                    multiplyRow(matrix,i,1.0);
                     printMatrix(matrix);
                     std::cout<<"turn to 1 by multiplying by " << (1.0/(matrix.at(leadingOne).at(colTracker)));
                     printMatrix(matrix);
                     multiplyRow(matrix,i,(1.0/(matrix.at(leadingOne).at(colTracker))));
                     printMatrix(matrix);
+                    pivotTracker.push_back(colTracker);
                     break;
                 } else {
                     std::cout<<"Rowswap " << i<< " "<< (leadingOne) << std::endl;
@@ -140,13 +142,14 @@ std::vector<std::vector<T>> RREF(std::vector<std::vector<T>>& matrix) {
                     printMatrix(matrix);
                     multiplyRow(matrix,(leadingOne),(1.0/(matrix.at(leadingOne).at(colTracker))));
                     printMatrix(matrix);
+                    pivotTracker.push_back(colTracker);
                     break;
                 }
             }
         }
 
         //Zero out that column under the leading 1
-        for(size_t i = leadingOne+1; i < rows; i++) {
+        for(size_t i = (leadingOne+1); i < rows; i++) {
             if (matrix.at(i).at(colTracker) != 0) {
                 std::cout<<"zeroing out a row. LeadingOne: " << leadingOne << "changing row" << i << " scalar is " << ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker))) ;
                 printMatrix(matrix);
@@ -160,13 +163,102 @@ std::vector<std::vector<T>> RREF(std::vector<std::vector<T>>& matrix) {
     }
     colTracker--;
     leadingOne--;
+    std::cout<<"Now in REF form, reduce to RREF";
     //Now that we have it in REF form, we work backwards and convert to RREF
     while (colTracker > 0) {
-            for (int i = leadingOne-1; i > -1; i--) {
+            //Only executes if it is a pivot column
+            if (std::find(pivotTracker.begin(), pivotTracker.end(), colTracker) != pivotTracker.end()) {
+                for (int i = leadingOne-1; i > -1; i--) {
+                    std::cout<<"zeroing out a row. LeadingOne: " << leadingOne << "changing row" << i << " scalar is " << ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker))) ;
+                    printMatrix(matrix);
+                    addRows(matrix, i, leadingOne, (-1.0 * ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker))) ));
+                    printMatrix(matrix);
+                }
+            }
+        colTracker--;
+        leadingOne--;
+    }
+    return matrix;
+}
+
+//Performs the Gauss Jordan elimination technique on an augmented matrix and returns the matrix back
+template <typename T>
+std::vector<std::vector<T>> gaussJordan(std::vector<std::vector<T>>& matrix) {
+    //Initialize bounds
+    size_t rows = matrix.size();
+    size_t cols = matrix[0].size()-1;
+
+    //Find first non-zero column, working from last column to first column
+    int colTracker = cols;
+    for(int i = cols-1; i > -1; i--) {
+        for (int j = rows-1; j > -1; j--) {
+            if (matrix.at(j).at(i) != 0) {
+                colTracker = i;
+            }
+        }
+    }
+
+    int leadingOne = 0; //Tracks position of the leading 1
+    std::vector<int> pivotTracker; //Contains the index of all columns that are pivot columns
+    //First, row echelon reduce
+    //Iterates through each column
+    while (colTracker < cols) {
+        //Working only within columns right now
+        //Get the first non-zero number in that column into the top row or the toppest row below a leading 1 row, and then makes that number 1
+        for(int i = leadingOne; i < rows; i++) {
+            if (matrix.at(i).at(colTracker) != 0 ) {
+                if (i == leadingOne) {
+                    std::cout<< "No rowswapping necessary" << i << colTracker << std::endl;
+                    printMatrix(matrix);
+                    multiplyRow(matrix,i,1.0);
+                    printMatrix(matrix);
+                    std::cout<<"turn to 1 by multiplying by " << (1.0/(matrix.at(leadingOne).at(colTracker)));
+                    printMatrix(matrix);
+                    multiplyRow(matrix,i,(1.0/(matrix.at(leadingOne).at(colTracker))));
+                    printMatrix(matrix);
+                    pivotTracker.push_back(colTracker);
+                    break;
+                } else {
+                    std::cout<<"Rowswap " << i<< " "<< (leadingOne) << std::endl;
+                    printMatrix(matrix);
+                    swapRows(matrix,(leadingOne),i);
+                    printMatrix(matrix);
+                    std::cout<<"turn to 1 by multiplying by " << (1.0/(matrix.at(leadingOne).at(colTracker)));
+                    printMatrix(matrix);
+                    multiplyRow(matrix,(leadingOne),(1.0/(matrix.at(leadingOne).at(colTracker))));
+                    printMatrix(matrix);
+                    pivotTracker.push_back(colTracker);
+                    break;
+                }
+            }
+        }
+
+        //Zero out that column under the leading 1
+        for(size_t i = (leadingOne+1); i < rows; i++) {
+            if (matrix.at(i).at(colTracker) != 0) {
                 std::cout<<"zeroing out a row. LeadingOne: " << leadingOne << "changing row" << i << " scalar is " << ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker))) ;
                 printMatrix(matrix);
                 addRows(matrix, i, leadingOne, (-1.0 * ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker))) ));
                 printMatrix(matrix);
+            }
+        }
+        //increase colTracker by 1
+        colTracker++;
+        leadingOne++;
+    }
+    colTracker--;
+    leadingOne--;
+    std::cout<<"Now in REF form, reduce to RREF";
+    //Now that we have it in REF form, we work backwards and convert to RREF
+    while (colTracker > 0) {
+            //Only executes if it is a pivot column
+            if (std::find(pivotTracker.begin(), pivotTracker.end(), colTracker) != pivotTracker.end()) {
+                for (int i = leadingOne-1; i > -1; i--) {
+                    std::cout<<"zeroing out a row. LeadingOne: " << leadingOne << "changing row" << i << " scalar is " << ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker))) ;
+                    printMatrix(matrix);
+                    addRows(matrix, i, leadingOne, (-1.0 * ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker))) ));
+                    printMatrix(matrix);
+                }
             }
         colTracker--;
         leadingOne--;
@@ -176,13 +268,16 @@ std::vector<std::vector<T>> RREF(std::vector<std::vector<T>>& matrix) {
 
 
 
+
 int main(){
-    std::vector<std::vector<double>> testMatrix = {{0,0,3},{5,0,0},{0,8,2}, {1,2,3},  {0,0,0}};
-    std::vector<std::vector<double>> testMatrix1 = RREF(testMatrix);
-    printMatrix(testMatrix1);
-    /*
+
+    
     std::string userInput;
-    std::cout << "Type in the calculation you want to make: \n"<< "[addMatrices]\n" << "[multiplyMatrices]\n";
+    std::cout << "Type in the calculation you want to make: \n"<< 
+    "[addMatrices]\n" << 
+    "[multiplyMatrices]\n" <<
+    "[RREF]\n" <<
+    "[gaussJordan]\n";
     std::cin >> userInput;
 
 
@@ -212,7 +307,12 @@ int main(){
         } else {
             std::cout << "Dimensions do not match";
         }
-    } */
-
+    } else if (userInput == "RREF") {
+        auto matrix1 = getMatrix<double>();
+        printMatrix(RREF(matrix1));
+    } else if (userInput == "gaussJordan") {
+        auto matrix1 = getMatrix<double>();
+        printMatrix(gaussJordan(matrix1));
+    }
     return 0;
 }
