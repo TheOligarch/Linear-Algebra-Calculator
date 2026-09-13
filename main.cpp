@@ -269,7 +269,7 @@ std::vector<std::vector<T>> gaussJordan(std::vector<std::vector<T>>& matrix) {
 //Finds the rank of a matrix and returns it
 template <typename T>
 int rank(std::vector<std::vector<T>>& matrix) {
-    matrix = gaussJordan(matrix);
+    matrix = RREF(matrix);
     int counter = 0; //Adds 1 every time there is a nonzero row
     for (const auto& row : matrix) {
         for(const auto& element : row) {
@@ -293,6 +293,106 @@ bool invertability(std::vector<std::vector<T>>& matrix) {
     }
 }
 
+//Finds the inverse of a given matrix and returns it
+//Basically the RREF function but performs the same elementary row operations on an identity matrix and then returns that identity matrix
+//Assumes we're given an nxn matrix that is inversable (will check these conditions in main)
+template<typename T>
+std::vector<std::vector<T>> inverse(std::vector<std::vector<T>>& matrix) {
+    //Initialize bounds
+    size_t rows = matrix.size();
+    size_t cols = matrix[0].size();
+
+    //Set up the identity matrix that we're going to return
+    std::vector<std::vector<T>> identityMatrix(rows, std::vector<T>(cols, 0));
+    //Set all elements along the main diagonal to 1. All other elements are already 0
+    for(int i = 0; i < rows; i++) {
+        matrix.at(i).at(i) = 1;
+    }
+    //Now, go through RREF as normal but any operations applied to given matrix are also applied to identity matrix
+
+    //Find first non-zero column, working from last column to first column
+    int colTracker = cols;
+    for(int i = cols-1; i > -1; i--) {
+        for (int j = rows-1; j > -1; j--) {
+            if (matrix.at(j).at(i) != 0) {
+                colTracker = i;
+            }
+        }
+    }
+
+    int leadingOne = 0; //Tracks position of the leading 1
+    std::vector<int> pivotTracker; //Contains the index of all columns that are pivot columns
+    //First, row echelon reduce
+    //Iterates through each column
+    while (colTracker < cols) {
+        //Working only within columns right now
+        //Get the first non-zero number in that column into the top row or the toppest row below a leading 1 row, and then makes that number 1
+        for(int i = leadingOne; i < rows; i++) {
+            if (matrix.at(i).at(colTracker) != 0 ) {
+                if (i == leadingOne) {
+                    std::cout<< "No rowswapping necessary" << i << colTracker << std::endl;
+                    printMatrix(matrix);
+                    multiplyRow(identityMatrix,i,1.0);
+                    multiplyRow(matrix,i,1.0);
+                    printMatrix(matrix);
+                    std::cout<<"turn to 1 by multiplying by " << (1.0/(matrix.at(leadingOne).at(colTracker)));
+                    printMatrix(matrix);
+                    multiplyRow(identityMatrix,i,(1.0/(matrix.at(leadingOne).at(colTracker))));
+                    multiplyRow(matrix,i,(1.0/(matrix.at(leadingOne).at(colTracker))));
+                    printMatrix(matrix);
+                    pivotTracker.push_back(colTracker);
+                    break;
+                } else {
+                    std::cout<<"Rowswap " << i<< " "<< (leadingOne) << std::endl;
+                    printMatrix(matrix);
+                    swapRows(matrix,(leadingOne),i);
+                    swapRows(identityMatrix,(leadingOne),i);
+                    printMatrix(matrix);
+                    std::cout<<"turn to 1 by multiplying by " << (1.0/(matrix.at(leadingOne).at(colTracker)));
+                    printMatrix(matrix);
+                    multiplyRow(identityMatrix,(leadingOne),(1.0/(matrix.at(leadingOne).at(colTracker))));
+                    multiplyRow(matrix,(leadingOne),(1.0/(matrix.at(leadingOne).at(colTracker))));
+                    printMatrix(matrix);
+                    pivotTracker.push_back(colTracker);
+                    break;
+                }
+            }
+        }
+
+        //Zero out that column under the leading 1
+        for(size_t i = (leadingOne+1); i < rows; i++) {
+            if (matrix.at(i).at(colTracker) != 0) {
+                std::cout<<"zeroing out a row. LeadingOne: " << leadingOne << "changing row" << i << " scalar is " << ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker))) ;
+                printMatrix(matrix);
+                addRows(identityMatrix, i, leadingOne, (-1.0 * ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker)))  ));
+                addRows(matrix, i, leadingOne, (-1.0 * ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker))) ));
+                printMatrix(matrix);
+            }
+        }
+        //increase colTracker by 1
+        colTracker++;
+        leadingOne++;
+    }
+    colTracker--;
+    leadingOne--;
+    std::cout<<"Now in REF form, reduce to RREF";
+    //Now that we have it in REF form, we work backwards and convert to RREF
+    while (colTracker > 0) {
+            //Only executes if it is a pivot column
+            if (std::find(pivotTracker.begin(), pivotTracker.end(), colTracker) != pivotTracker.end()) {
+                for (int i = leadingOne-1; i > -1; i--) {
+                    std::cout<<"zeroing out a row. LeadingOne: " << leadingOne << "changing row" << i << " scalar is " << ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker))) ;
+                    printMatrix(matrix);
+                    addRows(identityMatrix, i, leadingOne, (-1.0 * ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker))) ));
+                    addRows(matrix, i, leadingOne, (-1.0 * ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker))) ));
+                    printMatrix(matrix);
+                }
+            }
+        colTracker--;
+        leadingOne--;
+    }
+    return identityMatrix;
+}
 
 
 
@@ -306,6 +406,7 @@ int main(){
     "[gaussJordan]\n" <<
     "[rank]\n" <<
     "[invertability]\n";
+    /*"[inverse]\n";*/
     std::cin >> userInput;
 
 
@@ -352,6 +453,9 @@ int main(){
         } else {
             std::cout << "This matrix is not invertable";
         }
+    } else if (userInput == "inverse") {
+        auto matrix1 = getMatrix<double>();
+        printMatrix(inverse(matrix1));
     }
     return 0;
 }
