@@ -306,8 +306,9 @@ std::vector<std::vector<T>> inverse(std::vector<std::vector<T>>& matrix) {
     std::vector<std::vector<T>> identityMatrix(rows, std::vector<T>(cols, 0));
     //Set all elements along the main diagonal to 1. All other elements are already 0
     for(int i = 0; i < rows; i++) {
-        matrix.at(i).at(i) = 1;
+        identityMatrix.at(i).at(i) = 1;
     }
+
     //Now, go through RREF as normal but any operations applied to given matrix are also applied to identity matrix
 
     //Find first non-zero column, working from last column to first column
@@ -332,27 +333,35 @@ std::vector<std::vector<T>> inverse(std::vector<std::vector<T>>& matrix) {
                 if (i == leadingOne) {
                     std::cout<< "No rowswapping necessary" << i << colTracker << std::endl;
                     printMatrix(matrix);
+                    printMatrix(identityMatrix);
                     multiplyRow(identityMatrix,i,1.0);
                     multiplyRow(matrix,i,1.0);
                     printMatrix(matrix);
+                    printMatrix(identityMatrix);
                     std::cout<<"turn to 1 by multiplying by " << (1.0/(matrix.at(leadingOne).at(colTracker)));
                     printMatrix(matrix);
+                    printMatrix(identityMatrix);
                     multiplyRow(identityMatrix,i,(1.0/(matrix.at(leadingOne).at(colTracker))));
                     multiplyRow(matrix,i,(1.0/(matrix.at(leadingOne).at(colTracker))));
                     printMatrix(matrix);
+                    printMatrix(identityMatrix);
                     pivotTracker.push_back(colTracker);
                     break;
                 } else {
                     std::cout<<"Rowswap " << i<< " "<< (leadingOne) << std::endl;
                     printMatrix(matrix);
+                    printMatrix(identityMatrix);
                     swapRows(matrix,(leadingOne),i);
                     swapRows(identityMatrix,(leadingOne),i);
                     printMatrix(matrix);
+                    printMatrix(identityMatrix);
                     std::cout<<"turn to 1 by multiplying by " << (1.0/(matrix.at(leadingOne).at(colTracker)));
                     printMatrix(matrix);
+                    printMatrix(identityMatrix);
                     multiplyRow(identityMatrix,(leadingOne),(1.0/(matrix.at(leadingOne).at(colTracker))));
                     multiplyRow(matrix,(leadingOne),(1.0/(matrix.at(leadingOne).at(colTracker))));
                     printMatrix(matrix);
+                    printMatrix(identityMatrix);
                     pivotTracker.push_back(colTracker);
                     break;
                 }
@@ -364,9 +373,11 @@ std::vector<std::vector<T>> inverse(std::vector<std::vector<T>>& matrix) {
             if (matrix.at(i).at(colTracker) != 0) {
                 std::cout<<"zeroing out a row. LeadingOne: " << leadingOne << "changing row" << i << " scalar is " << ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker))) ;
                 printMatrix(matrix);
+                printMatrix(identityMatrix);
                 addRows(identityMatrix, i, leadingOne, (-1.0 * ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker)))  ));
                 addRows(matrix, i, leadingOne, (-1.0 * ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker))) ));
                 printMatrix(matrix);
+                printMatrix(identityMatrix);
             }
         }
         //increase colTracker by 1
@@ -383,9 +394,11 @@ std::vector<std::vector<T>> inverse(std::vector<std::vector<T>>& matrix) {
                 for (int i = leadingOne-1; i > -1; i--) {
                     std::cout<<"zeroing out a row. LeadingOne: " << leadingOne << "changing row" << i << " scalar is " << ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker))) ;
                     printMatrix(matrix);
+                    printMatrix(identityMatrix);
                     addRows(identityMatrix, i, leadingOne, (-1.0 * ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker))) ));
                     addRows(matrix, i, leadingOne, (-1.0 * ((matrix.at(i).at(colTracker))/(matrix.at(leadingOne).at(colTracker))) ));
                     printMatrix(matrix);
+                    printMatrix(identityMatrix);
                 }
             }
         colTracker--;
@@ -405,8 +418,8 @@ int main(){
     "[RREF]\n" <<
     "[gaussJordan]\n" <<
     "[rank]\n" <<
-    "[invertability]\n";
-    /*"[inverse]\n";*/
+    "[invertability]\n" <<
+    "[inverse]\n";
     std::cin >> userInput;
 
 
