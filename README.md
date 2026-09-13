@@ -18,6 +18,8 @@ Current Features:
 
 -if a matrix is invertable or not
 
+-Inverse of a matrix
+
 
 
 
@@ -25,7 +27,7 @@ Planned Features:
 
 -determinant of a matrix 
 
--Inverse of a matrix
+
 
 
 AI/Research policy:
