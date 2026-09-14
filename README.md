@@ -20,12 +20,14 @@ Current Features:
 
 -Inverse of a matrix
 
+-determinant of a matrix (n=1 and n=2)
+
 
 
 
 Planned Features:
 
--determinant of a matrix 
+-determinant of a matrix (n>2)
 
 
 
