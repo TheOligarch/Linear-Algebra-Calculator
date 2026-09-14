@@ -407,6 +407,17 @@ std::vector<std::vector<T>> inverse(std::vector<std::vector<T>>& matrix) {
     return identityMatrix;
 }
 
+template <typename T>
+T determinant(std::vector<std::vector<T>>& matrix) {
+    int n = matrix.size();
+    if (n == 1) {
+        return matrix.at(0).at(0);
+    } else if (n == 2) {
+        return (matrix.at(0).at(0)*matrix.at(1).at(1) - matrix.at(0).at(1)*matrix.at(1).at(0));
+    } else {
+        return -1; //To be coded later when I have a better understanding of the most optimal way of calculating determinants
+    }
+}
 
 
 int main(){
@@ -419,7 +430,8 @@ int main(){
     "[gaussJordan]\n" <<
     "[rank]\n" <<
     "[invertability]\n" <<
-    "[inverse]\n";
+    "[inverse]\n" <<
+    "[determinant] (n = 1 or n=2)]\n";
     std::cin >> userInput;
 
 
@@ -469,6 +481,10 @@ int main(){
     } else if (userInput == "inverse") {
         auto matrix1 = getMatrix<double>();
         printMatrix(inverse(matrix1));
+    } else if (userInput == "determinant") {
+        auto matrix1 = getMatrix<double>();
+        double det = determinant(matrix1);
+        std::cout << "The determinant of the matrix is " << det;
     }
     return 0;
 }
